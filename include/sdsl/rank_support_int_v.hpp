@@ -221,8 +221,7 @@ public:
 		// {
 		size_type cache2 = idx % values_per_block != 0;
 		// size_type const cache2 = 1;
-		// res += cache2 * this->word_prefix_rank(this->m_v->data(), idx, v);
-		res += cache2 * this->word_prefix_rank(idx, v);
+		res += cache2 * this->word_prefix_rank(this->m_v->data(), idx, v);
 			// std::cout << "idx=" << idx << '\n';
 		// }
 		// std::cout << "res4=" << res << '\n';
@@ -272,8 +271,8 @@ public:
         }
 
 		size_type const cache2 = idx % values_per_block != 0;
-		res_upper += cache2 * this->word_prefix_rank(idx, v);
-		res_lower += cache2 * this->word_prefix_rank(idx, v - 1);
+		res_upper += cache2 * this->word_prefix_rank(this->m_v->data(), idx, v);
+		res_lower += cache2 * this->word_prefix_rank(this->m_v->data(), idx, v - 1);
 
 		return res_upper - res_lower;
 	}

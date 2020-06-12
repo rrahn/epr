@@ -61,6 +61,7 @@ protected:
 
 protected:
 	const int_vector<vector_width>* m_v; //!< Pointer to the rank supported bit_vector
+    const uint64_t * data_ptr;
     static constexpr uint8_t sigma{alphabet_size};
     // static constexpr uint8_t values_per_word{64/sigma};
     static constexpr uint8_t sigma_bits{ceil_log2(alphabet_size)};
@@ -110,23 +111,6 @@ protected:
     }
 
     // Counts the occurrences of elements smaller or equal to v in the word starting at data up to position idx.
-    uint32_t word_prefix_rank(const size_type idx, const value_type v) const
-    {
-        size_type const bit_pos = idx * sigma_bits;
-        // uint64_t const w = *(m_v->data() + (bit_pos / bits_per_word));
-        // uint64_t const w = m_v->get_int(bit_pos / bits_per_word, 64);
-        // uint64_t const w = m_v->operator[](bit_pos / bits_per_word);//*(m_v->data() + (bit_pos / bits_per_word));
-        // return v;
-        uint64_t const w = *(m_v->m_data + (bit_pos / bits_per_word));
-        // uint64_t w = 4356;
-        // std::cout << "w=" << w << "\nr=" << r << '\n';
-        // std::cout << "bit_pos=" << bit_pos << '\n';
-        // std::cout << "w= " << std::bitset<64>(w).to_string() << " v=" << std::bitset<64>(v).to_string() << " set_positions_prefix=" << std::bitset<64>(set_positions_prefix(w, v)).to_string() <<
-        //              " bits::lo_set=" << std::bitset<64>(bits::lo_set[(bit_pos % 63)]).to_string() << '\n';
-        return bits::cnt(set_positions_prefix(w, v) & bits::lo_set[(bit_pos % bits_per_word) + 1] ); //bits::lo_set[(bit_pos & 0x3F) + 1 + bit_pos/63]
-    }
-
-    // Counts the occurrences of elements smaller or equal to v in the word starting at data up to position idx.
     // Cannot be called on v = 0. Call word_prefix_rank(data, idx, 0) instead.
     uint32_t word_rank(const uint64_t* data, const size_type idx, const value_type v) const
     {
@@ -156,6 +140,7 @@ protected:
         if (v != nullptr) {
             assert(sigma_bits == v->width()); // TODO Not valid because EPR uses effective sigma, the text uses sigma
             m_v = v;
+            data_ptr = m_v->data();
 
             for (value_type v = 0; v < alphabet_size; ++v)
             {
