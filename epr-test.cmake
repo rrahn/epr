@@ -44,12 +44,15 @@ target_link_libraries (epr_test_unit INTERFACE "epr::test" "gtest_main" "gtest")
 target_include_directories (epr_test_unit INTERFACE "epr::test" "${EPR_TEST_CLONE_DIR}/googletest/include/")
 add_library (epr::test::unit ALIAS epr_test_unit)
 
-# SeqAn build system might add a leading whitespace wich confuses cmake and escaps the content in "" which breaks the compile command.
+# SeqAn build system stores the flags as strings possibly with leading whitespaces.
+# So we first trim the whitespaces and then convert it to a list in order to use it correctly inside of
+# target_compile_options
+string(STRIP "${SEQAN_CXX_FLAGS}" SEQAN_CXX_FLAGS_)
+string(REPLACE " " ";" SEQAN_CXX_FLAGS_LIST "${SEQAN_CXX_FLAGS_}")
 # seqan::epr::test::performance specifies required flags, includes and libraries
 # needed for the SeqAn peformance test cases
-string(STRIP "${SEQAN_CXX_FLAGS}" SEQAN_CXX_FLAGS_)
 add_library (seqan_epr_test_performance INTERFACE)
-target_compile_options (seqan_epr_test_performance INTERFACE "-DSEQAN_DISABLE_VERSION_CHECK=YES" "${SEQAN_DEFINITIONS}" "${SEQAN_CXX_FLAGS_}")
+target_compile_options (seqan_epr_test_performance INTERFACE "-DSEQAN_DISABLE_VERSION_CHECK=YES" "${SEQAN_DEFINITIONS}" "${SEQAN_CXX_FLAGS_LIST}")
 target_link_libraries (seqan_epr_test_performance INTERFACE "epr::test::performance" "${SEQAN_LIBRARIES}")
 target_include_directories (seqan_epr_test_performance INTERFACE "epr::test::performance" "${SEQAN_INCLUDE_DIRS}")
 add_library (seqan::epr::test::performance ALIAS seqan_epr_test_performance)
