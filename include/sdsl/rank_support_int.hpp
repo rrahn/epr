@@ -99,15 +99,26 @@ protected:
     }
 
     // Counts the occurrences of elements smaller or equal to v in the word starting at data up to position idx.
-    uint32_t word_prefix_rank(const uint64_t* data, const size_type idx, const value_type v) const
+    uint32_t word_prefix_rank_(const uint64_t word, const size_type bit_pos, const value_type v) const
     {
-        size_type const bit_pos = idx * sigma_bits;
-        uint64_t const w = *(data + (bit_pos / bits_per_word));
         // return v;
         // std::cout << "bit_pos=" << bit_pos << '\n';
         // std::cout << "w= " << std::bitset<64>(w).to_string() << " v=" << std::bitset<64>(v).to_string() << " set_positions_prefix=" << std::bitset<64>(set_positions_prefix(w, v)).to_string() <<
         //              " bits::lo_set=" << std::bitset<64>(bits::lo_set[(bit_pos % 63)]).to_string() << '\n';
-        return bits::cnt(set_positions_prefix(w, v) & bits::lo_set[(bit_pos % bits_per_word) + 1] ); //bits::lo_set[(bit_pos & 0x3F) + 1 + bit_pos/63]
+        return bits::cnt(set_positions_prefix(word, v) & bits::lo_set[(bit_pos % bits_per_word) + 1] ); //bits::lo_set[(bit_pos & 0x3F) + 1 + bit_pos/63]
+    }
+
+    // Counts the occurrences of elements smaller or equal to v in the word starting at data up to position idx.
+    uint32_t word_prefix_rank(const uint64_t* data, const size_type idx, const value_type v) const
+    {
+        size_type const bit_pos = idx * sigma_bits;
+        return word_prefix_rank_(*(data + (bit_pos / bits_per_word)), bit_pos, v);
+        // uint64_t const w = ;
+        // return v;
+        // std::cout << "bit_pos=" << bit_pos << '\n';
+        // std::cout << "w= " << std::bitset<64>(w).to_string() << " v=" << std::bitset<64>(v).to_string() << " set_positions_prefix=" << std::bitset<64>(set_positions_prefix(w, v)).to_string() <<
+        //              " bits::lo_set=" << std::bitset<64>(bits::lo_set[(bit_pos % 63)]).to_string() << '\n';
+        // return bits::cnt(set_positions_prefix(w, v) & bits::lo_set[(bit_pos % bits_per_word) + 1] ); //bits::lo_set[(bit_pos & 0x3F) + 1 + bit_pos/63]
     }
 
     // Counts the occurrences of elements smaller or equal to v in the word starting at data up to position idx.

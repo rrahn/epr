@@ -18,6 +18,9 @@ add_test(NAME rank_test_test COMMAND rank_test)
 add_executable(rank_benchmark rank_benchmark.cpp)
 target_link_libraries(rank_benchmark epr::test::performance)
 
+add_executable(rank_profile rank_profile.cpp)
+target_link_libraries(rank_profile epr::test::performance)
+
 add_executable(epr_benchmark epr_benchmark.cpp)
 target_link_libraries(epr_benchmark epr::test::performance)
 

@@ -25,13 +25,9 @@ seqan::String<alphabet_t> generate_sequence_seqan2(size_t const len = 500,
 }
 
 template <typename TAlphabet>
-void rank(benchmark::State & state)
+size_t rank(size_t const text_size, size_t const num_executions)
 {
     size_t const sigma = seqan::ValueSize<TAlphabet>::VALUE;
-    size_t const text_size{static_cast<size_t>(state.range(0))};
-
-    if (state.range(0) <= static_cast<decltype(state.range(0))>(0))
-        throw std::invalid_argument{"Text needs to be at least 1 character long."};
 
     std::mt19937_64 sigma_engine(12345);
     std::uniform_int_distribution<> sigma_dist(0, sigma - 1);
@@ -47,19 +43,20 @@ void rank(benchmark::State & state)
     using level_config = seqan::Levels<void, epr_config>;
     seqan::RankDictionary<TAlphabet, level_config> epr(text);
 
-    for (auto _ : state)
+    size_t rank = 0;
+    for (size_t i = 0; i < num_executions; ++i)
     {
         size_t const pos{position_gen()};
         TAlphabet const val{sigma_gen()};
 
-        benchmark::DoNotOptimize(getRank(epr, pos, val));
+        rank += getRank(epr, pos, val);
     }
+    return rank;
 }
 
-
-BENCHMARK_TEMPLATE(rank, seqan::Dna)->RangeMultiplier(100)->Range(100, 1'000'000);
-BENCHMARK_TEMPLATE(rank, seqan::AminoAcid)->RangeMultiplier(100)->Range(100, 1'000'000);
-
-BENCHMARK_MAIN();
-
+int main()
+{
+    size_t r = rank<seqan::Dna>(1'000'000, 1'000'000'000);
+    std::cout << "rank: " << r << "\n";
+}
 

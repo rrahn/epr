@@ -20,6 +20,9 @@ epr_require_benchmark()
 add_executable (benchmark_epr benchmark_epr.cpp)
 target_link_libraries (benchmark_epr seqan::epr::test::performance)
 
+add_executable (rank_profile rank_profile.cpp)
+target_link_libraries (rank_profile seqan::epr::test::performance)
+
 #add_executable (epr epr.cpp)
 #target_link_libraries (epr ${SEQAN_LIBRARIES})
 #add_executable (benchmark_epr benchmark_epr.cpp)
