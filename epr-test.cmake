@@ -1,11 +1,11 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.13)
 
 # Search for zlib as a dependency for SeqAn.
 find_package (ZLIB)
 find_package (BZip2)
 
 # Load the SeqAn module and fail if not found.
-set (SEQAN_BASE_DIRECTORY "/Users/rrahn/Development/seqan/seqan") # Set to the path on your system
+set (SEQAN_BASE_DIRECTORY "/buffer/ag_abi/rmaerker/workspace/seqan-src") # Set to the path on your system
 set (SEQAN_INCLUDE_PATH "${SEQAN_BASE_DIRECTORY}/include")
 find_package (OpenMP REQUIRED)
 find_package (SeqAn REQUIRED PATHS "${SEQAN_BASE_DIRECTORY}/util/" NO_CMAKE_PATH)
