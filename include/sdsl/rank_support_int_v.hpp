@@ -106,7 +106,7 @@ public:
 	using rank_support_int<alphabet_size,vector_width>::sigma_bits;
 
 public:
-	int_vector<0> m_block;
+	// int_vector<0> m_block;
 	int_vector<64> m_superblock;
 
 	static constexpr uint64_t values_per_word{64ULL / sigma_bits};
@@ -132,14 +132,14 @@ public:
 		}
 		else if (v->empty())
 		{
-			m_block.resize(max_letter, 0);
-			m_superblock.resize(max_letter, 0);
+			// m_block.resize(max_letter, 0);
+			// m_superblock.resize(max_letter, 0);
 			return;
 		}
 
 		constexpr uint64_t new_width{ceil_log2(values_per_superblock)};
 		// std::cout << new_width << '\n';
-		m_block.width(new_width);
+		// m_block.width(new_width);
 		// m_superblock.width(64);
 
 		// NOTE: number of elements is artificially increased by one because rank can be called on m_v[size()]
@@ -158,7 +158,7 @@ public:
         // Old initialisation
         //----------------------------------------------------------------------
 
-        m_block.resize(block_size);
+        // m_block.resize(block_size);
 		m_superblock.resize(superblock_size, 0);
 
 		// m_compressed_text_per_superblock.resize(superblock_count);  // Store the text only once. We will store for every superblock the text in a vector.
@@ -263,7 +263,7 @@ public:
         auto superblock_it = m_superblock.begin();
         size_t superblock_id = 0;
         size_t block_id = 0;
-        auto block_it = m_block.begin();
+        // auto block_it = m_block.begin();
         for (auto node_it = nodes.begin(); node_it != nodes.end(); ++node_it)
         {
             // First initialise the superblock text slice.
@@ -291,12 +291,7 @@ public:
             // A block stores the counts for the letters consecutive in memory from [0..max_letter] and starts then the
             // next block at offset i*max_letter, where i is the current block id.
             // TODO: Make the implementation safe for multiple words per block
-            // for (auto block_it = node_it->blocks.begin(); word_id < word_count && block_it != node_it->blocks.end(); ++word_id)
-            node_it->block_it = block_it; // Store begin of block iterator in super block.
-            constexpr size_t last_block_word = words_per_superblock - words_per_block;  // Do not count the last block.
-            for (uint64_t superblock_word_id = 0; word_id < word_count && superblock_word_id < last_block_word;
-                 ++word_id,
-                 ++superblock_word_id)
+            for (auto block_it = node_it->blocks.begin(); word_id < word_count && block_it != node_it->blocks.end(); ++word_id)
             {
                 // Get the prefix ranks for the current word for each letter and store them in the respective block
                 for (size_t letter_rank = 0; letter_rank < max_letter; ++letter_rank, ++block_it, ++block_id)
@@ -318,27 +313,27 @@ public:
 
         // Compare the blocks: They should store the same values.
 
-        auto cmp_it = m_block.begin();
-        size_t index = 0;
-        size_t node_id = 0;
-        for (auto node_it = nodes.begin(); node_it != nodes.end() && cmp_it != m_block.end(); ++node_it)
-        {
-            auto && node = *node_it;
-            size_t block_id = 0;
-            auto it = node.block_it;
-            for (size_t i = 0; i < ((blocks_per_superblock - 1) * max_letter) && it != m_block.end(); ++i, ++it)
-            {
-                if (*cmp_it != *it)
-                    std::cout << "FAIL: m_block[" << std::setw(4) << index << "] != node["
-                              << std::setw(3) << node_id << "]blocks[" << std::setw(3) << block_id << "]: "
-                              << std::setw(2) << *cmp_it << " != " << std::setw(2) << *it << "\n";
+        // auto cmp_it = m_block.begin();
+        // size_t index = 0;
+        // size_t node_id = 0;
+        // for (auto node_it = nodes.begin(); node_it != nodes.end() && cmp_it != m_block.end(); ++node_it)
+        // {
+        //     auto && node = *node_it;
+        //     size_t block_id = 0;
+        //     auto it = node.blocks.begin();
+        //     for (size_t i = 0; i < ((blocks_per_superblock - 1) * max_letter) && cmp_it != m_block.end(); ++i, ++it)
+        //     {
+        //         if (*cmp_it != *it)
+        //             std::cout << "FAIL: m_block[" << std::setw(4) << index << "] != node["
+        //                       << std::setw(3) << node_id << "]blocks[" << std::setw(3) << block_id << "]: "
+        //                       << std::setw(2) << *cmp_it << " != " << std::setw(2) << *it << "\n";
 
-                ++index;
-                ++block_id;
-                ++cmp_it;
-            }
-            ++node_id;
-        }
+        //         ++index;
+        //         ++block_id;
+        //         ++cmp_it;
+        //     }
+        //     ++node_id;
+        // }
 	}
 
 	rank_support_int_v(const rank_support_int_v&) = default;
@@ -410,7 +405,7 @@ public:
 		size_type const is_first_block = block_id_in_superblock == 0;
 		size_type const pppp = (max_letter * (block_id_in_superblock + is_first_block - 1)) + v;
 		// size_type const pppp = max_letter * (superblock_id * (blocks_per_superblock - 1) + (block_id_in_superblock + !cache - 1)) + v;
-		res += !is_first_block * (*(node.block_it + pppp));
+		res += !is_first_block * (node.blocks[pppp]);
 
         // if (block_id_in_superblock > 0)
             // res += m_block[max_letter * superblock_id * (blocks_per_superblock - 1) + (block_id_in_superblock - 1)  * max_letter + v];
@@ -494,10 +489,9 @@ public:
 		// res_upper += !is_first_block * (*it2);
 
         // Now we do the same with the blocks. We know that v is at least 1.
-        size_type const pppp = (max_letter * (block_id_in_superblock_ + is_first_block - 1)) + (v - 1);
-        auto block_it = node.block_it + pppp;
-        res_lower_ += !is_first_block * (*block_it);
-        res_upper_ += !is_first_block * (*(++block_it));
+        size_type pppp = (max_letter * (block_id_in_superblock_ + is_first_block - 1)) + (v - 1);
+        res_lower_ += !is_first_block * node.blocks[pppp];
+        res_upper_ += !is_first_block * node.blocks[++pppp];
 
 
         // if constexpr (words_per_block > 1)
@@ -583,8 +577,8 @@ template <uint8_t alphabet_size, uint8_t vector_width, uint8_t words_per_block, 
 struct rank_support_int_v<alphabet_size, vector_width, words_per_block, blocks_per_superblock>::superblock_node
 {
     typename int_vector<64>::const_iterator superblock_it;
-    typename int_vector<0>::const_iterator block_it;
-    // std::array<uint32_t, (blocks_per_superblock - 1) * (alphabet_size - 1)> blocks;
+    // typename int_vector<0>::const_iterator block_it;
+    std::array<uint32_t, (blocks_per_superblock - 1) * (alphabet_size - 1)> blocks;
     std::array<bit_compressed_word<uint8_t, sigma_bits>, words_per_superblock> superblock_text;
     // std::array<compressed_block_text<values_per_word>, words_per_superblock> superblock_text;
 
