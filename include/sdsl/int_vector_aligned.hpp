@@ -1139,6 +1139,11 @@ public:
 			m_offset = idx_in_word * m_len;
 		}
 	}
+
+	int_vector_iterator_base(const int_vector_iterator_base &) = default;
+	int_vector_iterator_base(int_vector_iterator_base &&) = default;
+	int_vector_iterator_base & operator=(const int_vector_iterator_base &) = default;
+	int_vector_iterator_base & operator=(int_vector_iterator_base &&) = default;
 };
 
 template <class t_int_vector>
@@ -1168,6 +1173,9 @@ public:
 	{}
 
 	int_vector_iterator(const int_vector_iterator<t_int_vector>& it) = default;
+	int_vector_iterator(int_vector_iterator<t_int_vector> &&it) = default;
+	int_vector_iterator & operator=(const int_vector_iterator<t_int_vector>& it) = default;
+	int_vector_iterator & operator=(int_vector_iterator<t_int_vector> &&it) = default;
 
 	reference operator*() const { return reference(m_word, m_offset, m_len); }
 
@@ -1248,15 +1256,15 @@ public:
 		return *this;
 	}
 
-	iterator& operator=(const int_vector_iterator<t_int_vector>& it)
-	{
-		if (this != &it) {
-			m_word   = it.m_word;
-			m_offset = it.m_offset;
-			m_len	= it.m_len;
-		}
-		return *this;
-	}
+	// iterator& operator=(const int_vector_iterator<t_int_vector>& it)
+	// {
+	// 	if (this != &it) {
+	// 		m_word   = it.m_word;
+	// 		m_offset = it.m_offset;
+	// 		m_len	= it.m_len;
+	// 	}
+	// 	return *this;
+	// }
 
 	iterator operator+(difference_type i) const
 	{
@@ -1342,19 +1350,33 @@ public:
 		: int_vector_iterator_base<t_int_vector>(v, idx)
 	{}
 
-	int_vector_const_iterator(const int_vector_const_iterator& it) = default;
+	int_vector_const_iterator(const int_vector_const_iterator<t_int_vector>& it) = default;
+	int_vector_const_iterator(int_vector_const_iterator<t_int_vector> &&it) = default;
+	int_vector_const_iterator & operator=(const int_vector_const_iterator<t_int_vector>& it) = default;
+	int_vector_const_iterator & operator=(int_vector_const_iterator<t_int_vector> &&it) = default;
 
-	int_vector_const_iterator(const int_vector_iterator<t_int_vector>& it)
+	int_vector_const_iterator(int_vector_iterator<t_int_vector> it) :
+		int_vector_iterator_base<t_int_vector>(std::move(it))
+	{}
+
+	int_vector_const_iterator & operator=(int_vector_iterator<t_int_vector> it)
 	{
-		m_v = it.m_v;
-		m_word = it.m_word;
-		m_offset = it.m_offset;
-		m_len	= it.m_len;
-		max_size = it.max_size;
+		// std::cout << "it->m_len = " << (int)it.m_len << "\n";
+		static_cast<int_vector_iterator_base<t_int_vector> &>(*this) = std::move(it);
+
+		// std::cout << "const_it->m_len = " << (int)this->m_len << "\n";
+		return *this;
 	}
 
 	const_reference operator*() const
 	{
+		assert(m_word != nullptr);
+
+		// std::cout << "m_word = " << *m_word << "\n";
+		// std::cout << "m_offset = " << m_offset << "\n";
+		// std::cout << "m_len = " << m_len << "\n";
+		// std::cout << "lo_set = " << bits::lo_set[m_len] << "\n";
+
 		if (m_offset + m_len <= 64) {
 			return ((*m_word) >> m_offset) & bits::lo_set[m_len];
 		}
