@@ -107,7 +107,7 @@ public:
 
 public:
 	// int_vector<0> m_block;
-	int_vector<64> m_superblock;
+	// int_vector<64> m_superblock;
 
 	static constexpr uint64_t values_per_word{64ULL / sigma_bits};
 	static constexpr uint32_t values_per_block{words_per_block * values_per_word};
@@ -159,7 +159,7 @@ public:
         //----------------------------------------------------------------------
 
         // m_block.resize(block_size);
-		m_superblock.resize(superblock_size, 0);
+		// m_superblock.resize(superblock_size, 0);
 
 		// m_compressed_text_per_superblock.resize(superblock_count);  // Store the text only once. We will store for every superblock the text in a vector.
 
@@ -260,7 +260,7 @@ public:
 		// Precompute blocks and superblocks
 		auto text_slice_it = v->begin();
         uint64_t word_id = 0;  // We basically iterate over all words of the underlying text.
-        auto superblock_it = m_superblock.begin();
+        // auto superblock_it = m_superblock.begin();
         size_t superblock_id = 0;
         size_t block_id = 0;
         // auto block_it = m_block.begin();
@@ -277,7 +277,7 @@ public:
             }
 
             // Second initialise the superblock counts: buf_blocks corresponds to
-            node_it->superblock_it = superblock_it;  // Store the beign of the super block in the node.
+            auto superblock_it = node_it->superblocks.begin();  // Store the beign of the super block in the node.
             for (size_t letter_rank = 0; letter_rank < max_letter; ++letter_rank, ++superblock_it, ++superblock_id)
             {
                 buf_superblocks[letter_rank] += buf_blocks[letter_rank]; // Update sum with previous superblock
@@ -393,7 +393,7 @@ public:
     //             << "\n";
 
 		// retrieve superblock value
-        size_type res = *(node.superblock_it + v);
+        size_type res = node.superblocks[v];
         // std::cout << "res1 = " << res << " == " << m_superblock[max_letter * (block_id_ / blocks_per_superblock) + v] << '\n';
 		// std::cout << "res1=" << res << '\n';
 
@@ -465,10 +465,10 @@ public:
         auto && node = nodes[node_id];
 
         // First access is the superblock_id offset with the max_letter plus the current letter.
-        auto superblock_it = node.superblock_it + (v - 1); // Move iterator to the predecessor of v.
+        // auto superblock_it = node.superblock_it + (v - 1); // Move iterator to the predecessor of v.
 
-        size_t res_lower_ = *superblock_it;
-        size_t res_upper_ = *(++superblock_it);
+        size_t res_lower_ = node.superblocks[v - 1];
+        size_t res_upper_ = node.superblocks[v];
 
 		// size_type const access1 = max_letter * superblock_id + v;  // Is the superblock id.
 
@@ -576,8 +576,9 @@ public:
 template <uint8_t alphabet_size, uint8_t vector_width, uint8_t words_per_block, uint8_t blocks_per_superblock>
 struct rank_support_int_v<alphabet_size, vector_width, words_per_block, blocks_per_superblock>::superblock_node
 {
-    typename int_vector<64>::const_iterator superblock_it;
+    // typename int_vector<64>::const_iterator superblock_it;
     // typename int_vector<0>::const_iterator block_it;
+    std::array<uint32_t, (alphabet_size - 1)> superblocks;
     std::array<uint32_t, (blocks_per_superblock - 1) * (alphabet_size - 1)> blocks;
     std::array<bit_compressed_word<uint8_t, sigma_bits>, words_per_superblock> superblock_text;
     // std::array<compressed_block_text<values_per_word>, words_per_superblock> superblock_text;
