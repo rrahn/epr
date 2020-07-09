@@ -37,9 +37,9 @@ void rank(benchmark::State & state)
     }
 }
 
-BENCHMARK_TEMPLATE(rank, 4)->RangeMultiplier(100)->Range(100, 1'000'000);
+BENCHMARK_TEMPLATE(rank, 4)->RangeMultiplier(100)->Range(100, 1'000'000'000);
 // BENCHMARK_TEMPLATE(rank, 4)->Arg(100000000);
-BENCHMARK_TEMPLATE(rank, 27)->RangeMultiplier(100)->Range(100, 1'000'000);
+BENCHMARK_TEMPLATE(rank, 27)->RangeMultiplier(100)->Range(100, 1'000'000'000);
 // BENCHMARK_TEMPLATE(rank, 8)->RangeMultiplier(100)->Range(100, 1'000'000);
 // BENCHMARK_TEMPLATE(rank, 16)->RangeMultiplier(100)->Range(100, 1'000'000);
 // BENCHMARK_TEMPLATE(rank, 32)->RangeMultiplier(100)->Range(100, 1'000'000);
