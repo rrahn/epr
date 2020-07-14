@@ -1,14 +1,27 @@
 cmake_minimum_required(VERSION 3.16)
 
+# Include the sdsl from the submodule.
+find_path (EPR_SUBMODULES_DIR NAMES submodule/sdsl-lite HINTS "${CMAKE_SOURCE_DIR}/..")
+
+message (STATUS "Looking for submodules")
+# Find all submodules and add the include directories.
+if (EPR_SUBMODULES_DIR)
+    set (SDSL_LITE_SUBMODULE_DIR "${EPR_SUBMODULES_DIR}/submodule/sdsl-lite")
+    message(STATUS "   ... adding sdsl submodule: ${SDSL_LITE_SUBMODULE_DIR}")
+    set (SEQAN_SUBMODULE_DIR "${EPR_SUBMODULES_DIR}/submodule/seqan")
+    message(STATUS "   ... adding seqan submodule: ${SEQAN_SUBMODULE_DIR}")
+else ()
+    message (FATAL_ERROR "Could not find the submodule directory.")
+endif ()
+
 # Search for zlib as a dependency for SeqAn.
 find_package (ZLIB)
 find_package (BZip2)
 
 # Load the SeqAn module and fail if not found.
-set (SEQAN_BASE_DIRECTORY "/Users/rrahn/Development/seqan/seqan") # Set to the path on your system
-set (SEQAN_INCLUDE_PATH "${SEQAN_BASE_DIRECTORY}/include")
+set (SEQAN_INCLUDE_PATH "${SEQAN_SUBMODULE_DIR}/include")
 find_package (OpenMP REQUIRED)
-find_package (SeqAn REQUIRED PATHS "${SEQAN_BASE_DIRECTORY}/util/" NO_CMAKE_PATH)
+find_package (SeqAn REQUIRED PATHS "${SEQAN_SUBMODULE_DIR}/util/" NO_CMAKE_PATH)
 
 set (EPR_BENCHMARK_CLONE_DIR "${PROJECT_BINARY_DIR}/vendor/benchmark")
 set (EPR_TEST_CLONE_DIR "${PROJECT_BINARY_DIR}/vendor/googletest")
@@ -27,7 +40,7 @@ file(MAKE_DIRECTORY ${EPR_TEST_CLONE_DIR}/googletest/include/)
 add_library (epr_test INTERFACE)
 target_compile_options (epr_test INTERFACE "")
 target_link_libraries (epr_test INTERFACE "pthread")
-target_include_directories (epr_test INTERFACE "${EPR_TEST_INCLUDE_DIR}")
+target_include_directories (epr_test INTERFACE "${EPR_TEST_INCLUDE_DIR}" "${SDSL_LITE_SUBMODULE_DIR}/include")
 add_library (epr::test ALIAS epr_test)
 
 # epr::test::performance specifies required flags, includes and libraries

@@ -9,7 +9,6 @@ include (GoogleTest OPTIONAL)
 epr_require_test()
 epr_require_benchmark()
 
-include_directories("${CMAKE_SOURCE_DIR}/../include")
 
 add_executable(rank_test rank_test.cpp)
 target_link_libraries (rank_test epr::test::unit)
