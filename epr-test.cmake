@@ -5,7 +5,7 @@ find_package (ZLIB)
 find_package (BZip2)
 
 # Load the SeqAn module and fail if not found.
-set (SEQAN_BASE_DIRECTORY "/buffer/ag_abi/rmaerker/workspace/seqan-src") # Set to the path on your system
+set (SEQAN_BASE_DIRECTORY "/Users/rmaerker/Development/seqan-git/seqan-src") # Set to the path on your system
 set (SEQAN_INCLUDE_PATH "${SEQAN_BASE_DIRECTORY}/include")
 find_package (OpenMP REQUIRED)
 find_package (SeqAn REQUIRED PATHS "${SEQAN_BASE_DIRECTORY}/util/" NO_CMAKE_PATH)
