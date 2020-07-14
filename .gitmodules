@@ -1,3 +1,6 @@
 [submodule "submodule/sdsl-lite"]
 	path = submodule/sdsl-lite
 	url = git@github.com:xxsds/sdsl-lite.git
+[submodule "submodule/seqan"]
+	path = submodule/seqan
+	url = git@github.com:seqan/seqan.git
