@@ -57,8 +57,8 @@ void rank(benchmark::State & state)
 }
 
 
-BENCHMARK_TEMPLATE(rank, seqan::Dna)->RangeMultiplier(100)->Range(100, 1'000'000'000);
-BENCHMARK_TEMPLATE(rank, seqan::AminoAcid)->RangeMultiplier(100)->Range(100, 1'000'000'000);
+BENCHMARK_TEMPLATE(rank, seqan::Dna)->RangeMultiplier(100)->Range(100, 100'000'000);
+BENCHMARK_TEMPLATE(rank, seqan::AminoAcid)->RangeMultiplier(100)->Range(100, 100'000'000);
 
 BENCHMARK_MAIN();
 
