@@ -21,9 +21,14 @@ void rank(benchmark::State & state)
     std::uniform_int_distribution<value_type> sigma_dist(0, sigma - 1);
     auto sigma_gen = [&sigma_dist, &sigma_engine]() { return sigma_dist(sigma_engine); };
 
-    sdsl::int_vector<> text(text_size, 0);
-    std::generate(text.begin(), text.end(), sigma_gen);
-    sdsl::rank_support_int_v<sigma> rank_support(&text);
+    sdsl::rank_support_int_v<sigma> rank_support{};
+
+    { // We don't need the text afterwards.
+        sdsl::int_vector<> text(text_size, 0, sigma);
+        std::generate(text.begin(), text.end(), sigma_gen);
+
+        rank_support = sdsl::rank_support_int_v<sigma>(&text);
+    }
 
     std::mt19937_64 position_engine(4654561);
     std::uniform_int_distribution<size_type> position_dist(0, text_size - 1);
@@ -37,9 +42,9 @@ void rank(benchmark::State & state)
     }
 }
 
-BENCHMARK_TEMPLATE(rank, 4)->RangeMultiplier(100)->Range(100, 100'000'000);
+BENCHMARK_TEMPLATE(rank, 4)->RangeMultiplier(100)->Range(100, 1'000'000'000);
 // BENCHMARK_TEMPLATE(rank, 4)->Arg(100000000);
-BENCHMARK_TEMPLATE(rank, 27)->RangeMultiplier(100)->Range(100, 100'000'000);
+BENCHMARK_TEMPLATE(rank, 27)->RangeMultiplier(100)->Range(100, 1'000'000'000);
 // BENCHMARK_TEMPLATE(rank, 8)->RangeMultiplier(100)->Range(100, 1'000'000);
 // BENCHMARK_TEMPLATE(rank, 16)->RangeMultiplier(100)->Range(100, 1'000'000);
 // BENCHMARK_TEMPLATE(rank, 32)->RangeMultiplier(100)->Range(100, 1'000'000);
